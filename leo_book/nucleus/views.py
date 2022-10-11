@@ -1,12 +1,17 @@
 import email
+from multiprocessing import AuthenticationError
+from socket import AF_IRDA
+from sunau import AUDIO_FILE_ENCODING_FLOAT
 from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
 
 from nucleus.models import Profile
 # Create your views here.
 
+@login_required(login_url='signin')
 def index(request):
     return render(request, 'index.html')
 
@@ -39,3 +44,25 @@ def signup(request):
             return redirect('signup')
     else:    
         return render(request, 'signup.html')
+
+def signin(request):
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            auth.login(request, user)
+            return redirect('/')
+        else:
+            messages.info(request, 'Invalid Credentials')
+            return redirect('signin')
+    else:
+        return render(request, 'signin.html')
+
+@login_required(login_url='signin')
+def logout(request):
+    auth.logout(request)
+    return redirect('signin')
