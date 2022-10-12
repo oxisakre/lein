@@ -6,14 +6,20 @@ from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
+from django.contrib.auth.decorators import login_required
+from requests import request # hacer que el usuario se tenga que logear
 
 from nucleus.models import Profile
 # Create your views here.
 
-@login_required(login_url='signin')
+@login_required(login_url='signin') # para que el usuario tenga que logearse, lo va a mandar siempre al signin
 def index(request):
     return render(request, 'index.html')
+
+@login_required(login_url='signin')
+def settings(request):
+    user_profile = Profile.objects.get(user=request.user) # lo que hace es que si get(obtiene) el objeto 'user'
+    return render(request, 'setting.html', {'user_profile': user_profile})
 
 def signup(request):
     if request.method == 'POST':
@@ -34,11 +40,13 @@ def signup(request):
                 user.save()
 
                 #logear al usuario y redirigirlo a la pagina de configuracion
+                user_login = auth.authenticate(username=username, password=password)
+                auth.login(request, user_login)
                 # crear un perfil para el usuario nuevo
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
                 new_profile.save()
-                return redirect('login')
+                return redirect('setting.html')
         else:
             messages.info(request, 'Passwords Not Matching')
             return redirect('signup')
