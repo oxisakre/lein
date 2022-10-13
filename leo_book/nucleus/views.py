@@ -19,6 +19,31 @@ def index(request):
 @login_required(login_url='signin')
 def settings(request):
     user_profile = Profile.objects.get(user=request.user) # lo que hace es que si get(obtiene) el objeto 'user'
+
+    if request.method == 'POST':
+            if request.FILES.get('image') == None:
+                image = user_profile.profileimg
+                bio = request.POST['bio']
+                full_name = request.POST['full_name']
+                location = request.POST['location']
+
+                user_profile.profileimg = image
+                user_profile.bio = bio
+                user_profile.location = location
+                user_profile.full_name = full_name
+                user_profile.save()
+            if request.FILES.get('image') != None:
+                image = request.FILES.get('image')
+                bio = request.POST['bio']
+                full_name = request.POST['full_name']
+                location = request.POST['location']
+
+                user_profile.profileimg = image
+                user_profile.bio = bio
+                user_profile.location = location
+                user_profile.full_name = full_name
+                user_profile.save()
+            return redirect('settings')
     return render(request, 'setting.html', {'user_profile': user_profile})
 
 def signup(request):
@@ -46,7 +71,7 @@ def signup(request):
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
                 new_profile.save()
-                return redirect('setting.html')
+                return redirect('settings')
         else:
             messages.info(request, 'Passwords Not Matching')
             return redirect('signup')

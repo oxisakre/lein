@@ -44,21 +44,18 @@
                     </div>
                     <div class="bg-white rounded-md lg:shadow-lg shadow col-span-2">
                         
-                        <form action="" method="POST">
+                        <form action="" method="POST" enctype="multipart/form-data"> <!-- la multipar tiene qeu estar para poder hacer el submit de la form(sino no va a subir la foto ni nada) -->
                             {% csrf_token %}
                        <div class="grid grid-cols-2 gap-3 lg:p-6 p-4">
                             <div class="col-span-2">
                                 <label for=""> Profile Image</label> <!-- lo que hace es el user profile es mantener la foto la bio y todo del mismo usario -->
-                                <input type="file" name="image" value="{{user_profile.profileimg}}" class="shadow-none bg-gray-100">
+                                <img width="200" height="200" src="{{user_profile.profileimg.url}}" />
+                                <input type="file" name="image" value="" class="shadow-none bg-gray-100">
                             </div>
                            <div>
-                               <label for=""> First name</label>
-                               <input type="text" placeholder="Your name.." class="shadow-none bg-gray-100">
+                               <label for=""> Full name</label>
+                               <input type="text" name="full_name" placeholder="Your name.." value="{{user_profile.full_name}}" class="shadow-none bg-gray-100">
                            </div>
-                           <div>
-                               <label for=""> Last name</label>
-                               <input type="text" placeholder="Your name.." class="shadow-none bg-gray-100">
-                            </div>
                             
                             <div class="col-span-2">
                                 <label for="about">Bio</label>  
