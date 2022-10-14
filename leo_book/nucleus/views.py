@@ -2,6 +2,7 @@ import email
 from multiprocessing import AuthenticationError
 from socket import AF_IRDA
 from sunau import AUDIO_FILE_ENCODING_FLOAT
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User, auth
@@ -14,7 +15,13 @@ from nucleus.models import Profile
 
 @login_required(login_url='signin') # para que el usuario tenga que logearse, lo va a mandar siempre al signin
 def index(request):
-    return render(request, 'index.html')
+    user_object = User.objects.get(username=request.user.username) # para obetener el objeto del usuario conectado- user sirve porque es la foreingkey
+    user_profile = Profile.objects.get(user=user_object) # para obtener el perfil del usuario
+    return render(request, 'index.html', {'user_profile' : user_profile}) # para pasarle el userprofile al html
+
+@login_required(login_url='signin')
+def upload(request):
+    return HttpResponse('<h1> Upload View </h1>')
 
 @login_required(login_url='signin')
 def settings(request):
