@@ -19,7 +19,7 @@ class Profile(models.Model):
         return self.user.username 
     
 class Post(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4) # dar una id unica
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4) # dar una id unica , hacerlo True cambia la id que da original django y le pone una unica
     user = models.CharField(max_length=100)
     image = models.ImageField(upload_to='post_images')
     caption = models.TextField()

@@ -1,4 +1,6 @@
+from dataclasses import asdict
 import email
+from email.mime import image
 from multiprocessing import AuthenticationError
 from socket import AF_IRDA
 from sunau import AUDIO_FILE_ENCODING_FLOAT
@@ -7,8 +9,9 @@ from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from requests import request # hacer que el usuario se tenga que logear
+from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
+from requests import request
+from nucleus.models import Post 
 
 from nucleus.models import Profile
 # Create your views here.
@@ -21,7 +24,19 @@ def index(request):
 
 @login_required(login_url='signin')
 def upload(request):
-    return HttpResponse('<h1> Upload View </h1>')
+
+    if request.method == 'POST':
+        user = request.user.username
+        image = request.FILES.get('image_upload') # porque en el index el input se llama image_upload
+        caption = request.POST['caption']
+
+        new_post = Post.objects.create(user=user, image=image, caption=caption)
+        new_post.save
+        
+        return redirect('/')
+    else:
+        return redirect('/')
+    
 
 @login_required(login_url='signin')
 def settings(request):
@@ -54,6 +69,11 @@ def settings(request):
     return render(request, 'setting.html', {'user_profile': user_profile})
 
 def signup(request):
+    
+    if request.user.is_authenticated:
+        messages.info(request, 'You are already logged in')
+        return redirect('/')
+    
     if request.method == 'POST':
         username = request.POST['username'] #devuelve el username
         email = request.POST['email']
@@ -87,11 +107,16 @@ def signup(request):
 
 def signin(request):
 
+    if request.user.is_authenticated:
+        return redirect('/')
+
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-
+        
         user = auth.authenticate(username=username, password=password)
+        
 
         if user is not None:
             auth.login(request, user)
