@@ -20,7 +20,9 @@ from nucleus.models import Profile
 def index(request):
     user_object = User.objects.get(username=request.user.username) # para obetener el objeto del usuario conectado- user sirve porque es la foreingkey
     user_profile = Profile.objects.get(user=user_object) # para obtener el perfil del usuario
-    return render(request, 'index.html', {'user_profile' : user_profile}) # para pasarle el userprofile al html
+
+    posts = Post.objects.all() # devuelve una lista 
+    return render(request, 'index.html', {'user_profile' : user_profile, 'posts' : posts}) # para pasarle el userprofile al html
 
 @login_required(login_url='signin')
 def upload(request):
