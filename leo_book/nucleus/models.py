@@ -23,6 +23,7 @@ class Post(models.Model):
     user = models.CharField(max_length=100)
     image = models.ImageField(upload_to='post_images')
     caption = models.TextField()
+    profimg = models.ImageField(upload_to='profile_images', default='generic-profile_0.png')
     created_at = models.DateTimeField(default=datetime.now)
     no_of_likes = models.IntegerField(default=0)
 

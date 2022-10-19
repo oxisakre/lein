@@ -26,19 +26,23 @@ def index(request):
 
 @login_required(login_url='signin')
 def upload(request):
+    user_profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
+        profimg  = user_profile.profileimg
         user = request.user.username
         image = request.FILES.get('image_upload') # porque en el index el input se llama image_upload
         caption = request.POST['caption']
 
-        new_post = Post.objects.create(user=user, image=image, caption=caption)
+        new_post = Post.objects.create(user=user, profimg=profimg, image=image, caption=caption)
         new_post.save
         
         return redirect('/')
     else:
         return redirect('/')
-    
+
+def like_post(request):
+    pass   
 
 @login_required(login_url='signin')
 def settings(request):
