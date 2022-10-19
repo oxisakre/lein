@@ -11,9 +11,9 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
 from requests import request
-from nucleus.models import Post 
+from nucleus.models import Post, Profile, LikePost
 
-from nucleus.models import Profile
+
 # Create your views here.
 
 @login_required(login_url='signin') # para que el usuario tenga que logearse, lo va a mandar siempre al signin
@@ -42,7 +42,24 @@ def upload(request):
         return redirect('/')
 
 def like_post(request):
-    pass   
+    username = request.user.username
+    post_id = request.GET.get('post_id') #obtener el id del post (que esta en el modelo del like)
+
+    post = Post.objects.get(id=post_id) # sabes si el id es la misma de la del post, para corroborar el like de la persona
+
+    like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
+
+    if like_filter == None:
+        new_like = LikePost.objects.create(post_id=post_id, username=username)
+        new_like.save
+        post.no_of_likes = post.no_of_likes+1
+        post.save()
+        return redirect('/')
+    else:
+        like_filter.delete()
+        post.no_of_likes = post.no_of_likes-1
+        post.save()
+        return redirect('/')
 
 @login_required(login_url='signin')
 def settings(request):
