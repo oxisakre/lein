@@ -1,16 +1,8 @@
-from dataclasses import asdict
-import email
-from email.mime import image
-from multiprocessing import AuthenticationError
-from socket import AF_IRDA
-from sunau import AUDIO_FILE_ENCODING_FLOAT
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
-from requests import request
 from nucleus.models import Post, Profile, LikePost
 
 
@@ -43,13 +35,13 @@ def upload(request):
 
 def like_post(request):
     username = request.user.username
-    post_id = request.GET.get('post_id') #obtener el id del post (que esta en el modelo del like)
+    post_id = request.GET.get('post_id') #obtener el id del post o sea lo busca en el data base (que esta en el modelo del like)
 
     post = Post.objects.get(id=post_id) # sabes si el id es la misma de la del post, para corroborar el like de la persona
 
-    like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
-
-    if like_filter == None:
+    like_filter = LikePost.objects.filter(post_id=post_id, username=username).first() #filtra los post id con el username conectado | el first es solo para obtener uno solo
+    # en cambio si fuese get nos tiraria error porque no hay dato 
+    if like_filter == None: # porque le filter nos devuelve el primero y si el primero es none pasa esto
         new_like = LikePost.objects.create(post_id=post_id, username=username)
         new_like.save
         post.no_of_likes = post.no_of_likes+1
@@ -60,6 +52,21 @@ def like_post(request):
         post.no_of_likes = post.no_of_likes-1
         post.save()
         return redirect('/')
+
+def profile(request, pk): #pk es lo que pusimos en el url para identificar al usuario
+    user_object = User.objects.get(username=pk) # determinando que pk sea el igual al usuario
+    user_profile = Profile.objects.get(user=user_object) # pasamos la data de ese usuario
+    user_posts = Post.objects.filter(user=pk) # pasamos la data de ese usuario pero de los post
+    user_post_length = len(user_posts) # para ver la cantidad de posts
+
+    context = {
+        'user_object' : user_object,
+        'user_profile' : user_profile,
+        'user_posts' : user_posts,
+        'user_post_length' : user_post_length,
+    }
+    return render(request, 'profile.html', context)
+
 
 @login_required(login_url='signin')
 def settings(request):
