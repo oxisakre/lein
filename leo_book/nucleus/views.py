@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
-from nucleus.models import Post, Profile, LikePost
+from nucleus.models import Post, Profile, LikePost , Followers
 
 
 # Create your views here.
@@ -59,14 +59,45 @@ def profile(request, pk): #pk es lo que pusimos en el url para identificar al us
     user_posts = Post.objects.filter(user=pk) # pasamos la data de ese usuario pero de los post
     user_post_length = len(user_posts) # para ver la cantidad de posts
 
+    follower = request.user.username # la persona que quiere seguirlo
+    user = pk
+
+    if Followers.objects.filter(follower=follower, user=user).first():
+        button_text = 'Unfollow'
+    else:
+        button_text = 'Follow'
+
+    user_followers = len(Followers.objects.filter(user=pk)) # el pk es porque es el especifico usuario al que se sigue digamos, si fuese user seria el conectado
+    user_following = len(Followers.objects.filter(follower=pk))
+
+
     context = {
         'user_object' : user_object,
         'user_profile' : user_profile,
         'user_posts' : user_posts,
         'user_post_length' : user_post_length,
+        'button_text' : button_text,
+        'user_followers' : user_followers,
+        'user_following' : user_following,
     }
     return render(request, 'profile.html', context)
 
+@login_required(login_url='signin')
+def follow(request):
+    if request.method == 'POST':
+        follower = request.POST['follower']
+        user = request.POST['user']
+
+        if Followers.objects.filter(follower=follower, user=user).first():
+            delete_follower = Followers.objects.get(follower=follower, user=user)
+            delete_follower.delete()
+            return redirect('/profile/'+user)
+        else:
+            new_follower = Followers.objects.create(follower=follower, user=user)
+            new_follower.save()
+            return redirect('/profile/'+user)
+    else:
+        return redirect('/')
 
 @login_required(login_url='signin')
 def settings(request):
