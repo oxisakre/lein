@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # hacer que el usuario se tenga que logear
 from nucleus.models import Post, Profile, LikePost , Followers
+from itertools import chain
 
 
 # Create your views here.
@@ -13,8 +14,22 @@ def index(request):
     user_object = User.objects.get(username=request.user.username) # para obetener el objeto del usuario conectado- user sirve porque es la foreingkey
     user_profile = Profile.objects.get(user=user_object) # para obtener el perfil del usuario
 
+    user_following_list = []
+    feed = []
+
+    user_following = Followers.objects.filter(follower=request.user.username)
+
+    for users in user_following:
+        user_following_list.append(users.user)
+
+    for usernames in user_following_list:
+        feed_list = Post.objects.filter(user=usernames)
+        feed.append(feed_list)
+
+    feed_list = list(chain(*feed))
+
     posts = Post.objects.all() # devuelve una lista 
-    return render(request, 'index.html', {'user_profile' : user_profile, 'posts' : posts}) # para pasarle el userprofile al html
+    return render(request, 'index.html', {'user_profile' : user_profile, 'posts' : feed_list}) # para pasarle el userprofile al html
 
 @login_required(login_url='signin')
 def upload(request):
@@ -32,6 +47,27 @@ def upload(request):
         return redirect('/')
     else:
         return redirect('/')
+
+    
+def share(request):
+    username = request.user.username
+    post_id = request.GET.get('post_id')
+    post = Post.objects.get(id=post_id)
+
+    share_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
+
+    if request.method == 'GET':
+        username = request.user.username
+        post_id = request.GET.get('post_id')
+        post = Post.objects.get(id=post_id)
+        share_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
+        
+        shared = {
+            'post' : post,
+            'share_filter' : share_filter
+        }
+        return render(request, 'post_share.html', shared)
+    
 
 def like_post(request):
     username = request.user.username
