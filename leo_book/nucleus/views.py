@@ -50,23 +50,11 @@ def upload(request):
 
     
 def share(request):
-    username = request.user.username
-    post_id = request.GET.get('post_id')
-    post = Post.objects.get(id=post_id)
+    user_object = User.objects.get(username=request.user.username) # para obetener el objeto del usuario conectado- user sirve porque es la foreingkey
+    user_profile = Profile.objects.get(user=user_object) # para obtener el perfil del usuario
 
-    share_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
-
-    if request.method == 'GET':
-        username = request.user.username
-        post_id = request.GET.get('post_id')
-        post = Post.objects.get(id=post_id)
-        share_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
-        
-        shared = {
-            'post' : post,
-            'share_filter' : share_filter
-        }
-        return render(request, 'post_share.html', shared)
+    posts = Post.objects.all() # devuelve una lista 
+    return render(request, 'post_share.html', {'user_profile' : user_profile, 'posts' : posts})
     
 
 def like_post(request):
