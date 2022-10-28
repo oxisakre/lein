@@ -49,12 +49,14 @@ def upload(request):
         return redirect('/')
 
     
-def share(request):
+def share(request, pk):
     user_object = User.objects.get(username=request.user.username) # para obetener el objeto del usuario conectado- user sirve porque es la foreingkey
     user_profile = Profile.objects.get(user=user_object) # para obtener el perfil del usuario
-
-    posts = Post.objects.all() # devuelve una lista 
-    return render(request, 'post_share.html', {'user_profile' : user_profile, 'posts' : posts})
+    post_id = pk
+    post = Post.objects.get(id=post_id)
+    
+   
+    return render(request, 'post_share.html', {'user_profile' : user_profile, 'post' : post})
     
 
 def like_post(request):
