@@ -6,6 +6,7 @@ urlpatterns = [
     path('settings', views.settings, name='settings'),
     path('upload', views.upload, name='upload'),
     path('follow', views.follow, name='follow'),
+    path('search', views.search, name='search'),
     path('profile/<str:pk>', views.profile, name='profile'), # str:pk es para el user el pk es el usuario y el str es string
     path('like-post', views.like_post, name='like-post'),
     path('share-post/<str:pk>', views.share, name='share-post'),

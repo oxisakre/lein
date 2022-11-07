@@ -32,9 +32,11 @@
                         <!--<div class="triger" uk-toggle="target: #wrapper ; cls: sidebar-active">
                             <i class="uil-bars"></i>
                         </div>-->
-
+                        <form action="/search" method="POST">
+                        {% csrf_token %}
                         <div class="header_search">
-                            <input type="text" placeholder="Search for username..">
+                            <input type="text" name="username" placeholder="Search for username..">&nbsp; &nbsp;
+                            <button type="submit"><i class="fa fa-search fa-1x"></i></button>
                             <div class="icon-search">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -43,7 +45,7 @@
                                 </svg>
                             </div>
                         </div>
-
+                        </form>
                         <div>
                             <style>
                               h5 {
